@@ -1,0 +1,33 @@
+# Gradle files
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Java classes and binaries
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Test data and logs
+test-data/
+kv-test-data/
+*.wal
+*.sst
+*.log
+current.wal
+
+# OS specific files
+.DS_Store
+Thumbs.db
