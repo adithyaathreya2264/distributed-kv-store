@@ -1,0 +1,30 @@
+plugins {
+    id 'com.google.protobuf'
+}
+
+dependencies {
+    implementation project(':modules:raft-core')
+    implementation 'io.netty:netty-all:4.1.100.Final'
+    implementation 'com.google.protobuf:protobuf-java:3.24.0'
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.24.0'
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {}
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir '../../proto'
+        }
+    }
+}
