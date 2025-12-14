@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package kv;
+
+option java_package = "com.dkv.kv.proto";
+option java_outer_classname = "KvProtos";
+
+message KVRequest {
+  enum CommandType {
+    GET = 0;
+    PUT = 1;
+    DELETE = 2;
+  }
+  
+  CommandType type = 1;
+  string key = 2;
+  string value = 3; // Empty for GET/DELETE
+}
+
+message KVResponse {
+  bool success = 1;
+  string message = 2;
+  string value = 3; // Present for GET
+}
