@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package rpc;
+
+option java_package = "com.dkv.rpc.proto";
+option java_outer_classname = "RpcProtos";
+
+import "raft.proto";
+import "kv.proto";
+
+// Generic wrapper for all RPC messages to simplify handling in Netty
+message RpcMessage {
+  enum MessageType {
+    APPEND_ENTRIES_REQUEST = 0;
+    APPEND_ENTRIES_RESPONSE = 1;
+    REQUEST_VOTE_REQUEST = 2;
+    REQUEST_VOTE_RESPONSE = 3;
+    KV_REQUEST = 4;
+    KV_RESPONSE = 5;
+  }
+  
+  MessageType type = 1;
+  string request_id = 2; // For matching responses to requests
+  
+  oneof payload {
+    raft.AppendEntriesRequest append_entries_request = 3;
+    raft.AppendEntriesResponse append_entries_response = 4;
+    raft.RequestVoteRequest request_vote_request = 5;
+    raft.RequestVoteResponse request_vote_response = 6;
+    kv.KVRequest kv_request = 7;
+    kv.KVResponse kv_response = 8;
+  }
+}
