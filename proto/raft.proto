@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package raft;
+
+option java_package = "com.dkv.raft.proto";
+option java_outer_classname = "RaftProtos";
+
+message LogEntry {
+  int64 term = 1;
+  int64 index = 2;
+  bytes command = 3; // The actual state machine command (e.g., serialized KV operation)
+  enum EntryType {
+    DATA = 0;
+    CONFIGURATION = 1; // For cluster membership changes
+    NO_OP = 2;
+  }
+  EntryType type = 4;
+}
+
+message AppendEntriesRequest {
+  int64 term = 1;
+  string leader_id = 2;
+  int64 prev_log_index = 3;
+  int64 prev_log_term = 4;
+  repeated LogEntry entries = 5;
+  int64 leader_commit = 6;
+}
+
+message AppendEntriesResponse {
+  int64 term = 1;
+  bool success = 2;
+  int64 match_index = 3; // Helper for optimization
+}
+
+message RequestVoteRequest {
+  int64 term = 1;
+  string candidate_id = 2;
+  int64 last_log_index = 3;
+  int64 last_log_term = 4;
+}
+
+message RequestVoteResponse {
+  int64 term = 1;
+  bool vote_granted = 2;
+}
