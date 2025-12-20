@@ -1,0 +1,22 @@
+plugins {
+    id 'application'
+}
+
+dependencies {
+    implementation project(':modules:networking')
+    implementation project(':modules:server-node')
+    implementation project(':modules:raft-core')
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'com.google.protobuf:protobuf-java:3.25.1'
+}
+
+application {
+    mainClass = 'com.dkv.client.ClientMain'
+}
+
+test {
+    useJUnitPlatform()
+}
