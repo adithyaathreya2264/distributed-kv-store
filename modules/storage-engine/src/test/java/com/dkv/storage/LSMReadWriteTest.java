@@ -71,7 +71,7 @@ public class LSMReadWriteTest {
 
         // Re-open engine?
         // My current LSMStorageEngine constructor creates a NEW WAL and doesn't load
-        // old SSTables yet (TODO in code).
+        // old SSTables yet
         // So persistence across restarts isn't fully implemented in the Engine class
         // yet.
         // I implemented SSTableWriter/Reader but didn't hook up "Load on Startup".
