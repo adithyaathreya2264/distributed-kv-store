@@ -2,7 +2,7 @@
 
 A strong-consistent, distributed Key-Value Store implemented in Java. It mimics systems like etcd or TiKV, featuring a custom Raft consensus algorithm, an LSM-Tree based storage engine, and a scalable networking layer.
 
-## 🚀 Features
+##  Features
 
 - **Consensus Algorithm**: Custom implementation of the **Raft** consensus protocol (Leader Election, Log Replication).
 - **Storage Engine**: **LSM-Tree** (Log-Structured Merge Tree) with MemTable, SSTables (Sorted String Tables), and WAL (Write-Ahead Log) for high write throughput and durability.
@@ -10,7 +10,7 @@ A strong-consistent, distributed Key-Value Store implemented in Java. It mimics 
 - **Resilience**: Automatic leader failover and crash recovery via WAL replay.
 - **Client**: Smart Java client with automatic retry policies and leader discovery.
 
-## 📂 Project Structure
+##  Project Structure
 
 The project is modularized using Gradle:
 
@@ -23,12 +23,12 @@ The project is modularized using Gradle:
 | `modules/client-java` | Client library and interactive CLI for accessing the store. |
 | `proto/` | Shared Protocol Buffer definitions (`kv.proto`, `raft.proto`). |
 
-## 🛠️ Prerequisites
+##  Prerequisites
 
 - **Java 21+**
 - **Gradle** (Wrapper included)
 
-## 📦 Build & Run
+##  Build & Run
 
 ### 1. Build the Project
 Compile all modules and generate Protobuf sources.
@@ -64,7 +64,7 @@ Open a new terminal to run the client shell.
 ./gradlew :modules:client-java:run --args="localhost:8081" -q --console=plain
 ```
 
-## 🎮 Usage Guide
+##  Usage Guide
 
 Once inside the Client Shell:
 
@@ -86,14 +86,14 @@ Value: {"name": "Alice", "role": "admin"}
 OK
 ```
 
-## 🧪 Testing
+##  Testing
 
 Run unit and integration tests across all modules:
 ```bash
 .\gradlew.bat test
 ```
 
-## 🔮 Future Improvements
+##  Future Improvements
 
 - [ ] Multi-node cluster configuration support in `DKVServer` CLI.
 - [ ] Log Compaction (Snapshotting) to prevent infinite log growth.
@@ -101,4 +101,4 @@ Run unit and integration tests across all modules:
 - [ ] Membership changes (Add/Remove nodes dynamically).
 
 ---
-*Built with ❤️ by Adithya R Athreya & Antigravity*
+*Built by Adithya R Athreya*
