@@ -5,12 +5,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.TreeMap;
 
 public class SSTableReader {
-    private final String filename;
     private final TreeMap<String, Long> index;
     private final RandomAccessFile raf;
 
     public SSTableReader(String filename) throws IOException {
-        this.filename = filename;
         this.raf = new RandomAccessFile(filename, "r");
         this.index = new TreeMap<>();
         loadIndex();
