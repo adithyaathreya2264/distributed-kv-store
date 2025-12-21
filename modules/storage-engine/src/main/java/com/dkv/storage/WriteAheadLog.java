@@ -1,8 +1,5 @@
 package com.dkv.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -22,7 +19,6 @@ import java.util.List;
  * If Value Length is -1, it's a deletion (tombstone).
  */
 public class WriteAheadLog {
-    private static final Logger logger = LoggerFactory.getLogger(WriteAheadLog.class);
     private final FileChannel logChannel;
     private final Path path;
 
