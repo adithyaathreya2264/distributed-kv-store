@@ -59,7 +59,6 @@ public class LSMStorageEngine {
             // Ideally ssTables list should be sorted by time (newest first)
             // Currently they are just added. We loaded them from disk (unsorted order from
             // listFiles?)
-            // TODO: Sort SSTables by checking formatted timestamp in filename
 
             for (int i = ssTables.size() - 1; i >= 0; i--) {
                 String val = ssTables.get(i).get(key);
