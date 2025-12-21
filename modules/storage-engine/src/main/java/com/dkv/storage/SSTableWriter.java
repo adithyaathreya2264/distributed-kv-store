@@ -1,8 +1,5 @@
 package com.dkv.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,7 +21,6 @@ import java.util.TreeMap;
 public class SSTableWriter {
     public static void write(MemTable memTable, String filename) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(filename))) {
-            long dataStartOffset = 0;
             long currentOffset = 0;
 
             // Sparse index: Map Key -> Offset
