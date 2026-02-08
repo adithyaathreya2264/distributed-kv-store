@@ -2,7 +2,7 @@
 
 A strong-consistent, distributed Key-Value Store implemented in Java. It mimics systems like etcd or TiKV, featuring a custom Raft consensus algorithm, an LSM-Tree based storage engine, and a scalable networking layer.
 
-## 🚀 Features
+## Features
 
 - **Consensus Algorithm**: Custom implementation of the **Raft** consensus protocol (Leader Election, Log Replication).
 - **Storage Engine**: **LSM-Tree** (Log-Structured Merge Tree) with MemTable, SSTables (Sorted String Tables), and WAL (Write-Ahead Log) for high write throughput and durability.
@@ -10,7 +10,7 @@ A strong-consistent, distributed Key-Value Store implemented in Java. It mimics 
 - **Resilience**: Automatic leader failover and crash recovery via WAL replay.
 - **Client**: Smart Java client with automatic retry policies and leader discovery.
 
-## 📂 Project Structure
+## Project Structure
 
 The project is modularized using Gradle:
 
@@ -23,7 +23,7 @@ The project is modularized using Gradle:
 | `modules/client-java` | Client library and interactive CLI for accessing the store. |
 | `proto/` | Shared Protocol Buffer definitions (`kv.proto`, `raft.proto`). |
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 - **Java 21+**
 - **Gradle** (Wrapper included)
