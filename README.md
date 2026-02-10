@@ -28,7 +28,7 @@ The project is modularized using Gradle:
 - **Java 21+**
 - **Gradle** (Wrapper included)
 
-## 📦 Build & Run
+## Build & Run
 
 ### 1. Build the Project
 Compile all modules and generate Protobuf sources.
@@ -64,7 +64,7 @@ Open a new terminal to run the client shell.
 ./gradlew :modules:client-java:run --args="localhost:8081" -q --console=plain
 ```
 
-## 🎮 Usage Guide
+## Usage Guide
 
 Once inside the Client Shell:
 
@@ -86,7 +86,7 @@ Value: {"name": "Alice", "role": "admin"}
 OK
 ```
 
-## 🧪 Testing
+## Testing
 
 Run unit and integration tests across all modules:
 ```bash
