@@ -93,11 +93,11 @@ Run unit and integration tests across all modules:
 .\gradlew.bat test
 ```
 
-## 🔮 Future Improvements
+## Future Improvements
 
-- [ ] Multi-node cluster configuration support in `DKVServer` CLI.
-- [ ] Log Compaction (Snapshotting) to prevent infinite log growth.
-- [ ] Implement full compaction strategies (K-Way Merge) for SSTables.
-- [ ] Membership changes (Add/Remove nodes dynamically).
+- Multi-node cluster configuration support in `DKVServer` CLI.
+- Log Compaction (Snapshotting) to prevent infinite log growth.
+- Implement full compaction strategies (K-Way Merge) for SSTables.
+- Membership changes (Add/Remove nodes dynamically).
 
 ---
