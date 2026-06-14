@@ -17,6 +17,8 @@ message RpcMessage {
     REQUEST_VOTE_RESPONSE = 3;
     KV_REQUEST = 4;
     KV_RESPONSE = 5;
+    INSTALL_SNAPSHOT_REQUEST = 6;
+    INSTALL_SNAPSHOT_RESPONSE = 7;
   }
   
   MessageType type = 1;
@@ -29,5 +31,7 @@ message RpcMessage {
     raft.RequestVoteResponse request_vote_response = 6;
     kv.KVRequest kv_request = 7;
     kv.KVResponse kv_response = 8;
+    raft.InstallSnapshotRequest install_snapshot_request = 9;
+    raft.InstallSnapshotResponse install_snapshot_response = 10;
   }
 }
