@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DKV Cluster Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d1117;
+      --surface:     #161b22;
+      --border:      #30363d;
+      --text:        #c9d1d9;
+      --muted:       #6e7681;
+      --accent:      #58a6ff;
+      --leader:      #3fb950;
+      --candidate:   #d29922;
+      --follower:    #58a6ff;
+      --danger:      #f85149;
+      --leader-glow: rgba(63,185,80,.25);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    header .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: -.5px; }
+    header .logo span { color: var(--accent); }
+    .badge {
+      font-size: .7rem; font-weight: 600; padding: .2rem .55rem;
+      border-radius: 9999px; background: rgba(88,166,255,.15);
+      color: var(--accent); letter-spacing: .5px; text-transform: uppercase;
+    }
+    .poll-indicator {
+      margin-left: auto; display: flex; align-items: center; gap: .5rem;
+      font-size: .8rem; color: var(--muted);
+    }
+    .pulse {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--leader);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(.7); }
+    }
+
+    /* ── Main layout ── */
+    main { flex: 1; display: flex; flex-direction: column; gap: 1.5rem; padding: 2rem; }
+
+    .nodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── Node card ── */
+    .node-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: box-shadow .3s, border-color .3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .node-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      opacity: 0;
+      transition: opacity .4s;
+      pointer-events: none;
+      border-radius: inherit;
+    }
+    .node-card.LEADER {
+      border-color: var(--leader);
+      box-shadow: 0 0 28px var(--leader-glow);
+    }
+    .node-card.LEADER::before { background: var(--leader-glow); opacity: 1; }
+    .node-card.CANDIDATE { border-color: var(--candidate); }
+    .node-card.offline { border-color: var(--danger); opacity: .6; }
+
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .node-id { font-size: 1.05rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+    .state-pill {
+      font-size: .7rem; font-weight: 700; padding: .2rem .65rem;
+      border-radius: 9999px; letter-spacing: .6px;
+    }
+    .state-pill.LEADER   { background: rgba(63,185,80,.2);  color: var(--leader);    }
+    .state-pill.FOLLOWER { background: rgba(88,166,255,.15); color: var(--follower);  }
+    .state-pill.CANDIDATE{ background: rgba(210,153,34,.2); color: var(--candidate); }
+    .state-pill.OFFLINE  { background: rgba(248,81,73,.15);  color: var(--danger);    }
+
+    .metrics {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .6rem .4rem;
+      font-size: .82rem;
+    }
+    .metric-label { color: var(--muted); }
+    .metric-value { font-family: 'JetBrains Mono', monospace; font-size: .83rem; color: var(--text); }
+
+    /* peer table inside leader card */
+    .peer-table { margin-top: 1rem; width: 100%; border-collapse: collapse; font-size: .78rem; }
+    .peer-table th { color: var(--muted); text-align: left; padding: .25rem .4rem; font-weight: 500; border-bottom: 1px solid var(--border); }
+    .peer-table td { padding: .28rem .4rem; font-family: 'JetBrains Mono', monospace; }
+    .peer-table tr:not(:last-child) td { border-bottom: 1px solid rgba(48,54,61,.5); }
+    .reachable-true  { color: var(--leader); }
+    .reachable-false { color: var(--danger); }
+
+    /* ── Event log ── */
+    .log-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .log-title { font-size: .9rem; font-weight: 600; margin-bottom: .8rem; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; }
+    .log-entries { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: .3rem; }
+    .log-entry {
+      display: flex; gap: .75rem; align-items: baseline;
+      font-size: .78rem; padding: .3rem .4rem; border-radius: 6px;
+      animation: fadeIn .3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+    .log-ts { color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+    .log-node { color: var(--accent); font-weight: 500; min-width: 5rem; }
+    .log-event { color: var(--text); font-weight: 600; }
+    .log-detail { color: var(--muted); }
+    .log-entry.BECAME_LEADER  .log-event { color: var(--leader);    }
+    .log-entry.START_ELECTION .log-event { color: var(--candidate); }
+    .log-entry.SNAPSHOT_TAKEN .log-event { color: #a371f7; }
+    .log-entry.VOTE_GRANTED   .log-event { color: var(--follower);  }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">DKV <span>Cluster</span></div>
+  <span class="badge">Live</span>
+  <div class="poll-indicator"><div class="pulse"></div> Polling every 1s</div>
+</header>
+
+<main>
+  <div class="nodes-grid" id="nodes-grid">
+    <!-- cards injected by JS -->
+  </div>
+
+  <div class="log-section">
+    <div class="log-title">Event Stream</div>
+    <div class="log-entries" id="log-entries"></div>
+  </div>
+</main>
+
+<script>
+  const NODES = [
+    { id: 'node1', metricsUrl: 'http://localhost:9081/metrics' },
+    { id: 'node2', metricsUrl: 'http://localhost:9082/metrics' },
+    { id: 'node3', metricsUrl: 'http://localhost:9083/metrics' },
+  ];
+
+  // Track previous state per node to detect transitions
+  const prevState = {};
+  const MAX_LOG = 60;
+  const logEntries = [];
+
+  function addLog(entry) {
+    logEntries.unshift(entry);
+    if (logEntries.length > MAX_LOG) logEntries.pop();
+    renderLog();
+  }
+
+  function renderLog() {
+    const container = document.getElementById('log-entries');
+    container.innerHTML = logEntries.map(e => `
+      <div class="log-entry ${e.event || ''}">
+        <span class="log-ts">${e.ts}</span>
+        <span class="log-node">${e.node}</span>
+        <span class="log-event">${e.event}</span>
+        <span class="log-detail">${e.detail}</span>
+      </div>
+    `).join('');
+  }
+
+  function fmtTime(isoOrNow) {
+    const d = isoOrNow ? new Date(isoOrNow) : new Date();
+    return d.toTimeString().slice(0, 8);
+  }
+
+  function buildCard(nodeConf, data) {
+    const state = data ? data.state : 'OFFLINE';
+    const isLeader = state === 'LEADER';
+
+    const metricsHtml = data ? `
+      <div class="metrics">
+        <span class="metric-label">Term</span>
+        <span class="metric-value">${data.term}</span>
+        <span class="metric-label">Commit index</span>
+        <span class="metric-value">${data.commitIndex}</span>
+        <span class="metric-label">Last applied</span>
+        <span class="metric-value">${data.lastApplied}</span>
+        <span class="metric-label">Port</span>
+        <span class="metric-value">${nodeConf.metricsUrl.split(':')[2].split('/')[0]}</span>
+      </div>
+    ` : '<p style="color:var(--danger);font-size:.85rem;margin-top:.5rem">⚠ Unreachable</p>';
+
+    const peerTableHtml = (isLeader && data.peers && data.peers.length) ? `
+      <table class="peer-table">
+        <thead>
+          <tr><th>Peer</th><th>matchIdx</th><th>nextIdx</th><th>reachable</th></tr>
+        </thead>
+        <tbody>
+          ${data.peers.map(p => `
+            <tr>
+              <td>${p.peerId}</td>
+              <td>${p.matchIndex}</td>
+              <td>${p.nextIndex}</td>
+              <td class="reachable-${p.reachable}">${p.reachable ? '✓' : '✗'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : '';
+
+    return `
+      <div class="node-card ${state}" id="card-${nodeConf.id}">
+        <div class="card-header">
+          <div class="node-id">${data ? data.nodeId : nodeConf.id}</div>
+          <span class="state-pill ${state}">${state}</span>
+        </div>
+        ${metricsHtml}
+        ${peerTableHtml}
+      </div>
+    `;
+  }
+
+  async function pollAll() {
+    const results = await Promise.all(NODES.map(async n => {
+      try {
+        const res = await fetch(n.metricsUrl, { signal: AbortSignal.timeout(800) });
+        const data = await res.json();
+        return { nodeConf: n, data };
+      } catch (_) {
+        return { nodeConf: n, data: null };
+      }
+    }));
+
+    // Detect state changes → push to event log
+    results.forEach(({ nodeConf, data }) => {
+      const cur = data ? data.state : 'OFFLINE';
+      const prev = prevState[nodeConf.id];
+      if (prev !== undefined && prev !== cur) {
+        addLog({
+          ts: fmtTime(),
+          node: data ? data.nodeId : nodeConf.id,
+          event: cur === 'LEADER' ? 'BECAME_LEADER'
+               : cur === 'CANDIDATE' ? 'START_ELECTION'
+               : cur === 'OFFLINE' ? 'NODE_DOWN'
+               : 'STATE_CHANGE',
+          detail: `${prev} → ${cur}${data ? ' term=' + data.term : ''}`,
+        });
+      }
+      prevState[nodeConf.id] = cur;
+    });
+
+    // Render grid
+    const grid = document.getElementById('nodes-grid');
+    grid.innerHTML = results.map(r => buildCard(r.nodeConf, r.data)).join('');
+  }
+
+  // Initial poll immediately, then every 1 second
+  pollAll();
+  setInterval(pollAll, 1000);
+</script>
+</body>
+</html>
