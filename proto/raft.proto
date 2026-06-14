@@ -30,6 +30,9 @@ message AppendEntriesResponse {
   int64 term = 1;
   bool success = 2;
   int64 match_index = 3; // Helper for optimization
+  // Accelerated log backtracking fields
+  int64 conflict_term = 4;  // Term of the conflicting entry (0 if no conflict term)
+  int64 conflict_index = 5; // First index of conflict_term, or follower's last index + 1
 }
 
 message RequestVoteRequest {
@@ -42,4 +45,16 @@ message RequestVoteRequest {
 message RequestVoteResponse {
   int64 term = 1;
   bool vote_granted = 2;
+}
+
+message InstallSnapshotRequest {
+  int64 term = 1;
+  string leader_id = 2;
+  int64 last_included_index = 3;
+  int64 last_included_term = 4;
+  bytes data = 5; // Serialized state machine snapshot
+}
+
+message InstallSnapshotResponse {
+  int64 term = 1;
 }
