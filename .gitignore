@@ -33,3 +33,5 @@ current.wal
 Thumbs.db
 
 .vscode
+
+cluster-data/
