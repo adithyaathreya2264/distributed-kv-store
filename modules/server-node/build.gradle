@@ -16,6 +16,21 @@ application {
     mainClass = 'com.dkv.server.DKVServer'
 }
 
+// com.sun.net.httpserver lives in the jdk.httpserver module.
+// Explicitly exporting it silences the IDE "restricted API" warning and is
+// the correct way to use the built-in HTTP server on Java 9+.
+compileJava {
+    options.compilerArgs += [
+        '--add-exports', 'jdk.httpserver/sun.net.httpserver=ALL-UNNAMED'
+    ]
+}
+
+// The same flag must be present at runtime so the JVM module system allows
+// reflective access to the internal package.
+run {
+    jvmArgs '--add-exports=jdk.httpserver/sun.net.httpserver=ALL-UNNAMED'
+}
+
 test {
     useJUnitPlatform()
 }
