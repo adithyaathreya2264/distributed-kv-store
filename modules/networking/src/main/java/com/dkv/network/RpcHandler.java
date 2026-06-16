@@ -69,6 +69,15 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcMessage> {
                 }
                 break;
 
+            case INSTALL_SNAPSHOT_REQUEST:
+                var isResponse = raftNode.handleInstallSnapshot(msg.getInstallSnapshotRequest());
+                response = RpcMessage.newBuilder()
+                        .setType(RpcMessage.MessageType.INSTALL_SNAPSHOT_RESPONSE)
+                        .setRequestId(msg.getRequestId())
+                        .setInstallSnapshotResponse(isResponse)
+                        .build();
+                break;
+
             default:
                 logger.warn("Received unsupported or response message type: {}", msg.getType());
         }
