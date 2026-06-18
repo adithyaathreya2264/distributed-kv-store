@@ -1,5 +1,7 @@
 # Distributed KV Store
 
+# STILL UNDER ACTIVE DEVELOPMENT
+
 A distributed, fault-tolerant key-value store built from scratch in Java.
 It implements the Raft consensus algorithm for leader election and log replication, and uses a Log-Structured Merge-Tree (LSM) storage engine for durable writes. The system runs as a 3-node cluster where one node is elected leader, writes flow through quorum, and data survives node crashes and restarts.
 
