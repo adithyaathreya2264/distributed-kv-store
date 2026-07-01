@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 public class KVStateMachine implements StateMachine {
     private static final Logger logger = LoggerFactory.getLogger(KVStateMachine.class);
@@ -36,6 +38,26 @@ public class KVStateMachine implements StateMachine {
             }
         } catch (IOException e) {
             logger.error("Failed to apply command", e);
+        }
+    }
+
+    @Override
+    public Map<String, String> getSnapshotData() {
+        try {
+            return storageEngine.getAllKeyValues();
+        } catch (IOException e) {
+            logger.error("Failed to get snapshot data", e);
+            return Collections.emptyMap();
+        }
+    }
+
+    @Override
+    public void restoreFromSnapshot(Map<String, String> snapshotData) {
+        try {
+            storageEngine.resetFromSnapshot(snapshotData);
+            logger.info("Restored state machine from snapshot ({} keys)", snapshotData.size());
+        } catch (IOException e) {
+            logger.error("Failed to restore from snapshot", e);
         }
     }
 }
