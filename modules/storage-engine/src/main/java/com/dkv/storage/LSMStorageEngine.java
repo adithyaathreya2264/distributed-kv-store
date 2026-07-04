@@ -2,8 +2,7 @@ package com.dkv.storage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -90,6 +89,88 @@ public class LSMStorageEngine {
             return new ArrayList<>(ssTables);
         } finally {
             lock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Returns all non-deleted key-value pairs across SSTables and MemTable.
+     * SSTables are scanned oldest-to-newest, then MemTable on top, so the
+     * latest value for each key wins.
+     */
+    public Map<String, String> getAllKeyValues() throws IOException {
+        lock.readLock().lock();
+        try {
+            Map<String, String> result = new TreeMap<>();
+
+            // Scan SSTables oldest to newest
+            for (SSTableReader sst : ssTables) {
+                for (String key : sst.getKeys()) {
+                    String val = sst.get(key);
+                    if (val != null) {
+                        result.put(key, val);
+                    } else {
+                        result.remove(key); // tombstone
+                    }
+                }
+            }
+
+            // MemTable on top (newest)
+            Iterator<KeyValuePair> it = memTable.iterator();
+            while (it.hasNext()) {
+                KeyValuePair kv = it.next();
+                if (kv.getValue() != null) {
+                    result.put(kv.getKey(), kv.getValue());
+                } else {
+                    result.remove(kv.getKey()); // tombstone
+                }
+            }
+
+            return result;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Replaces the entire storage engine state with the given key-value pairs.
+     * Closes all current readers, deletes SSTable/WAL files, and writes a fresh
+     * SSTable from the snapshot data.
+     */
+    public void resetFromSnapshot(Map<String, String> snapshotKvs) throws IOException {
+        lock.writeLock().lock();
+        try {
+            // Close existing resources
+            wal.close();
+            for (SSTableReader reader : ssTables) {
+                reader.close();
+            }
+            ssTables.clear();
+
+            // Delete SSTable and WAL files in dataDir
+            File dir = new File(dataDir);
+            File[] files = dir.listFiles((d, name) -> name.endsWith(".sst") || name.endsWith(".wal"));
+            if (files != null) {
+                for (File f : files) {
+                    f.delete();
+                }
+            }
+
+            // Re-init empty MemTable and WAL
+            memTable = new MemTable();
+            wal = new WriteAheadLog(dataDir + "/current.wal");
+
+            // Write snapshot data as a single SSTable
+            if (snapshotKvs != null && !snapshotKvs.isEmpty()) {
+                MemTable snapshotMem = new MemTable();
+                for (Map.Entry<String, String> entry : snapshotKvs.entrySet()) {
+                    snapshotMem.put(entry.getKey(), entry.getValue());
+                }
+                String sstFilename = dataDir + "/sst-snapshot-" + System.currentTimeMillis() + ".sst";
+                SSTableWriter.write(snapshotMem, sstFilename);
+                ssTables.add(new SSTableReader(sstFilename));
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
