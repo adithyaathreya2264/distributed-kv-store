@@ -1,8 +1,9 @@
 # Distributed KV Store
 
-# STILL UNDER ACTIVE DEVELOPMENT
+> A 3-node fault-tolerant key-value store built from scratch — custom Raft consensus, LSM storage engine, crash recovery, live metrics dashboard, and benchmarked under leader failover.
 
-A distributed, fault-tolerant key-value store built from scratch in Java.
+**Tech Stack:** Java 21 · Netty · Protobuf · Gradle · SLF4J + Logback
+
 It implements the Raft consensus algorithm for leader election and log replication, and uses a Log-Structured Merge-Tree (LSM) storage engine for durable writes. The system runs as a 3-node cluster where one node is elected leader, writes flow through quorum, and data survives node crashes and restarts.
 
 ---
@@ -17,9 +18,9 @@ It implements the Raft consensus algorithm for leader election and log replicati
           ┌─────────────────────▼──────────────────────┐
           │               Leader Node                   │
           │  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
-          │  │ RaftNode │  │   WAL    │  │Metrics   │  │
-          │  │(Election,│  │(durability│  │HTTP :9081│  │
-          │  │ Commit)  │  │ on write)│  │          │  │
+          │  │ RaftNode │  │LSM Engine│  │Metrics   │  │
+          │  │(Election,│  │(MemTable,│  │HTTP :9081│  │
+          │  │ Commit)  │  │ WAL)     │  │          │  │
           │  └────┬─────┘  └──────────┘  └──────────┘  │
           │       │ AppendEntries RPC                    │
           └───────┼─────────────────────────────────────┘
@@ -157,6 +158,34 @@ Select-String "BECAME_LEADER" .\cluster-data\node*\*.log
 
 ---
 
+## Performance
+
+Measured with `benchmark.ps1`, which spawns concurrent client threads sending requests for 30 seconds per scenario.
+
+> All nodes ran on localhost. This measures Raft consensus + LSM protocol overhead, not network latency.
+
+| Operation | Concurrency | Throughput (ops/sec) | p50 (ms) | p95 (ms) | p99 (ms) |
+|-----------|-------------|----------------------|----------|----------|----------|
+| PUT       | 10          | 194                  | 30.91    | 76.29    | 191.05   |
+| PUT       | 50          | 224                  | 95.40    | 905.37   | 2207.67  |
+| PUT       | 100         | 196                  | 233.58   | 2022.23  | 2420.09  |
+| GET       | 50          | 18,898               | 0.38     | 8.26     | 18.51    |
+
+**Reads vs writes:** GET throughput is ~100× higher than PUT because reads hit the leader's in-memory state directly, while writes go through the full Raft replication path (append → replicate → quorum ack → commit → apply).
+
+**Throughput scaling:** PUT throughput peaks around 50 threads (~224 ops/sec) then degrades at 100 threads due to contention on the synchronized Raft commit path and the 2-second propose timeout.
+
+**Leader failover:** With 50 PUT threads running, the leader was killed at the 15-second mark. The client's automatic retry logic redirected to the new leader. Overall throughput during the failover run was 254 ops/sec with 2,005 errors (requests in flight during the ~1s election window). p99 latency remained at 2,207 ms, matching steady-state — once the new leader was elected, performance recovered to baseline.
+
+> Tested on Intel Core 7 150U, 16 GB RAM.
+
+To re-run benchmarks:
+```powershell
+.\benchmark.ps1
+```
+
+---
+
 ## Limitations
 
 - **No TLS** — all inter-node and client traffic is plaintext TCP.
@@ -164,3 +193,4 @@ Select-String "BECAME_LEADER" .\cluster-data\node*\*.log
 - **No cluster membership changes** — adding or removing nodes requires a full restart.
 - **Snapshot threshold is high** — the default threshold of 1000 applied entries is suitable for testing; production use would need a configurable, byte-based threshold.
 - **No read linearizability guarantee** — reads from followers may return stale data. Only reads routed through the leader are consistent.
+- **Benchmark environment** — Benchmark client and cluster run on the same machine — numbers reflect protocol overhead only and will not reflect real network conditions.
