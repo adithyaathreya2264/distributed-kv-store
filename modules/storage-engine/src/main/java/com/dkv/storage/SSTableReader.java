@@ -57,6 +57,13 @@ public class SSTableReader {
         return new String(valBytes, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Returns all keys stored in this SSTable's index.
+     */
+    public java.util.Set<String> getKeys() {
+        return new java.util.TreeSet<>(index.keySet());
+    }
+
     public void close() throws IOException {
         raf.close();
     }
