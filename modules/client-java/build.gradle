@@ -24,3 +24,9 @@ test {
 tasks.named('run') {
     standardInput = System.in
 }
+
+// Benchmark runner — run via:  .\gradlew.bat :modules:client-java:benchmark --args="..."
+tasks.register('benchmark', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.dkv.client.BenchmarkRunner'
+}
