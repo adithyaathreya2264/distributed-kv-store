@@ -47,9 +47,6 @@ public class DKVClient {
                         .build())
                 .thenApply(response -> {
                     if (!response.getSuccess()) {
-                        // Could be "Key not found" or actual error.
-                        // For "Key not found", we might return null or throw.
-                        // Let's assume message contains details.
                         if ("Key not found".equals(response.getMessage())) {
                             return null;
                         }
@@ -116,7 +113,7 @@ public class DKVClient {
                                 new KVClientException("Invalid response type: " + response.getType()));
                     }
                 })
-                .thenCompose(future -> future); // Flatten the nested future
+                .thenCompose(future -> future);
     }
 
     private void rotateLeader() {
