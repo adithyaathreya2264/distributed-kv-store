@@ -5,17 +5,13 @@ import java.util.concurrent.*;
 
 /**
  * Load-generating benchmark for the DKV cluster.
- *
  * Usage:
  *   BenchmarkRunner <seeds> <operation> <threads> <durationSec> <valueSizeBytes>
- *
  * Example:
  *   BenchmarkRunner localhost:8081,localhost:8082,localhost:8083 PUT 50 30 100
- *
  * Each thread creates its own DKVClient instance (and therefore its own Netty
  * connection pool) to avoid single-channel contention.  Latencies are recorded
  * as raw nanosecond deltas in a pre-sized long[] to minimise GC pressure.
- *
  * At the end of the run the merged latency array is sorted once and percentile
  * values are picked by index — no external library needed.
  */
@@ -97,8 +93,6 @@ public class BenchmarkRunner {
         long wallElapsed = System.nanoTime() - wallStart;
         pool.shutdown();
 
-        // Close is not needed per-thread since each thread closes its own client,
-        // but shut down the pool.
         pool.awaitTermination(5, TimeUnit.SECONDS);
 
         // Merge all latencies
