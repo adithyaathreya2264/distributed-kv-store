@@ -66,8 +66,7 @@ public class ClientRetryTest {
 
     @Test
     public void testRetryOnNotLeader() throws ExecutionException, InterruptedException {
-        // Should try Node 1 first (index 0), fail with "Not Leader", retry Node 2,
-        // succeed.
+
         String result = client.get("someKey").get();
         assertEquals("SuccessValue", result);
     }
