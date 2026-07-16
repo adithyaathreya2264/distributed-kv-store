@@ -89,7 +89,6 @@ public class NettyClient {
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             ctx.close();
-            // In a real system, we'd fail all pending requests for this channel
         }
     }
 }
