@@ -46,17 +46,6 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcMessage> {
                 break;
 
             case KV_REQUEST:
-                // We need a way to process this.
-                // Since RpcHandler is generic networking, and KVRequestHandler is server-node,
-                // we should probably allow registering a handler or callback.
-                // For simplicity now: use a functional interface or just hardcode if we move
-                // code?
-                // `networking` module doesn't depend on `server-node` (cyclic dep).
-                // `server-node` depends on `networking`.
-                // So `RpcHandler` cannot know about `KVRequestHandler`.
-
-                // Solution: Add a generic `Function<KVRequest, KVResponse> kvHandler` to
-                // constructor?
                 if (kvHandler != null) {
                     var kvResponse = kvHandler.apply(msg.getKvRequest());
                     response = RpcMessage.newBuilder()
