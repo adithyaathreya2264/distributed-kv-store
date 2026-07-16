@@ -62,7 +62,6 @@ public class NettyServer {
             channelFuture = b.bind(port).sync();
             logger.info("Netty Server started on port {}", port);
 
-            // Don't block here, let the caller handle lifecycle or just return
         } catch (Exception e) {
             stop();
             throw e;
