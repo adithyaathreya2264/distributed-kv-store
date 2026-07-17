@@ -24,10 +24,6 @@ public class KVRequestHandler {
 
         if (request.getType() == KVRequest.CommandType.GET) {
             try {
-                // For strong consistency, we should check if we are leader (and lease valid)
-                // For simplicity, we serve from local state if we think we are leader or even
-                // if follower (eventual consistency)
-                // The requirements asked for "linearizable reads", implying Leader check.
                 if (raftNode.getState() != RaftState.LEADER) {
                     return response.setSuccess(false).setMessage("Not Leader").build();
                 }
@@ -53,21 +49,6 @@ public class KVRequestHandler {
             boolean proposed = raftNode.propose(command);
 
             if (proposed) {
-                // In a real async system, we would return a Future here and complete it when
-                // `apply` happens.
-                // For this synchronous-like handler, we can't easily wait for commitment
-                // without complex async logic.
-                // The simpler approach for this phase is to say "Proposed/Accepted".
-                // OR, checking requirement: "Clients can store and retrieve".
-                // We should probably wait.
-
-                // Let's allow "Accepted" for now, or implement a basic wait loop (not
-                // recommended for production).
-                // Or: Client library polls?
-
-                // Better approach: We return "Success" implying it was simply handed to Raft.
-                // But Raft might fail to replicate.
-
                 return response.setSuccess(true).setMessage("Command accepted for replication").build();
             } else {
                 return response.setSuccess(false).setMessage("Failed to propose command").build();
