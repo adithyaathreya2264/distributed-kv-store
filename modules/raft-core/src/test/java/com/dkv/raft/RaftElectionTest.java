@@ -31,14 +31,6 @@ public class RaftElectionTest {
                 .setLastLogTerm(0)
                 .build();
 
-        // Node term is 0, request term is 0.
-        // Logic: if request.term < currentTerm (false)
-        // request.term > currentTerm (false)
-        // log is up to date.
-        // votedFor is null.
-        // Should grant? Yes, same term is allowed if votedFor is null.
-        // Wait, if terms are equal and we haven't voted, we can vote.
-
         RequestVoteResponse response = node.handleRequestVote(request);
         assertTrue(response.getVoteGranted());
         assertEquals(0, response.getTerm());
