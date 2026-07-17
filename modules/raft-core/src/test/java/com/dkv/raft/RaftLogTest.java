@@ -34,13 +34,6 @@ public class RaftLogTest {
         log.append(LogEntry.newBuilder().setTerm(1).setIndex(2).build());
         log.append(LogEntry.newBuilder().setTerm(2).setIndex(3).build());
 
-        // Truncate from index 2 (should keep 1, remove 2 and 3)
-        // Wait, Raft truncate is usually "remove from this index onwards".
-        // My implementation: entries.subList(index - 1, entries.size()).clear();
-        // If index is 2 (1-based), listIndex is 1. subList(1, 3).clear().
-        // Entry 0 remains. Entry 1 and 2 removed.
-        // So index 1 remains.
-
         log.truncateFrom(2);
 
         assertEquals(1, log.getLastLogIndex());
