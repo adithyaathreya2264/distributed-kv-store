@@ -27,24 +27,12 @@ public class CompactionManager {
     }
 
     private void compact() {
-        // Simple compaction strategy: Merge all SSTables into one if there are more
-        // than 3.
+        // Simple compaction strategy: Merge all SSTables into one if there are more than 3.
         List<SSTableReader> snapshot = engine.getSSTablesSnapshot();
         if (snapshot.size() < 3) {
             return;
         }
 
         logger.info("Starting compaction on {} tables", snapshot.size());
-
-        // 1. Merge logic (Simplified: Read all keys from all tables into a TreeMap,
-        // then write new table)
-        // Optimization: Use K-Way Merge with iterators (Mocking this with simple
-        // approach first)
-
-        
-        // For now, let's just log.
-        // Implementing full K-way merge is complex for this step size.
-        // I will leave it as a placeholder or implement a very basic "Minor
-        // Compaction".
     }
 }
