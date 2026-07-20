@@ -36,29 +36,10 @@ public class KVIntegrationTest {
     }
 
     private void makeLeader(RaftNode node) {
-        // Reflection or just invoke election?
-        // Let's rely on internal state helper or Mock.
-        // Or trigger timeout?
-        // "startElection" is private.
-        // We can simulate receiving a huge Vote?
-        // Or just let RaftTimer trigger it? It takes 150-300ms.
-        // Let's Sleep.
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
         }
-
-        // We also need to "win" the election.
-        // Single node cluster: RequestVote to self -> Vote Granted -> Votes 1/1 ->
-        // Majority?
-        // My simple RaftNode implementation doesn't check "Majority" logic yet in
-        // startElection.
-        // It just becomes Candidate.
-        // I need to properly mock "Winning".
-
-        // HACK: Use reflection to set state to LEADER for this integration test of
-        // STORAGE.
-        // We are testing Storage Integration, not Election here.
         try {
             java.lang.reflect.Field stateField = RaftNode.class.getDeclaredField("state");
             stateField.setAccessible(true);
@@ -104,14 +85,6 @@ public class KVIntegrationTest {
         assertTrue(putResp.getSuccess());
         assertEquals("Command accepted for replication", putResp.getMessage());
 
-        // 2. Simulate Commit (Since we are single node, we don't have replication loop)
-        // RaftNode.propose simply appends to log.
-        // We need to trigger "commitIndex update".
-        // In a real cluster, AppendEntriesResponse checks majority.
-        // Here, we can manually trigger applyLog logic via AppendEntries or just Hack
-        // commitIndex.
-
-        // Let's set commitIndex = lastLogIndex
         try {
             java.lang.reflect.Field commitField = RaftNode.class.getDeclaredField("commitIndex");
             commitField.setAccessible(true);
