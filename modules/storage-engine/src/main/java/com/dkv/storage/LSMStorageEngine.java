@@ -12,13 +12,11 @@ public class LSMStorageEngine {
     private WriteAheadLog wal;
     private final List<SSTableReader> ssTables;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
-    // Rough flush threshold (e.g., 1MB for testing)
     private static final long FLUSH_THRESHOLD = 1024 * 1024;
 
     public LSMStorageEngine(String dataDir) throws IOException {
         this.dataDir = dataDir;
         this.memTable = new MemTable();
-        // Should actually generate unique WAL filenames or manage rotation
         this.wal = new WriteAheadLog(dataDir + "/current.wal");
         this.ssTables = new ArrayList<>();
 
@@ -55,10 +53,6 @@ public class LSMStorageEngine {
             }
 
             // 2. Check SSTables (Newest to Oldest)
-            // Ideally ssTables list should be sorted by time (newest first)
-            // Currently they are just added. We loaded them from disk (unsorted order from
-            // listFiles?)
-
             for (int i = ssTables.size() - 1; i >= 0; i--) {
                 String val = ssTables.get(i).get(key);
                 if (val != null)
