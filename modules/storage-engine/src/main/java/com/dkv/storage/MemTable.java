@@ -28,10 +28,6 @@ public class MemTable {
 
     public void delete(String key) {
         // Tombstone mechanism: value = null or specific marker
-        // For simplicity, we'll store specific tombstone marker or null value if we
-        // handle it that way.
-        // Let's use an empty string or a specific "DELETED" flag in KeyValuePair?
-        // Actually, often a null value in KV pair indicates deletion in LSM.
         long timestamp = System.currentTimeMillis();
         KeyValuePair kv = new KeyValuePair(key, null, timestamp);
         table.put(key, kv);
