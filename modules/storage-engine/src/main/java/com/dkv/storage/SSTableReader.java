@@ -38,8 +38,6 @@ public class SSTableReader {
     public String get(String key) throws IOException {
         Long offset = index.get(key);
         if (offset == null) {
-            // If dense index, key verification is direct
-            // If sparse index, we'd look for floorEntry and scan
             return null;
         }
 
