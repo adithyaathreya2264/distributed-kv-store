@@ -53,8 +53,6 @@ public class WriteAheadLog {
         while (buffer.hasRemaining()) {
             logChannel.write(buffer);
         }
-        // Force sync for durability - costly but safe.
-        // In real systems, batched or done periodically.
         logChannel.force(false);
     }
 
