@@ -32,10 +32,6 @@ public class SSTableWriter {
                 String key = kv.getKey();
                 String value = kv.getValue();
 
-                // Add to index every ~1KB or simply every entry for now?
-                // For simplicity, let's index every entry or every N entries.
-                // Indexing every entry makes it a dense index, easier for simple
-                // implementation.
                 index.put(key, currentOffset);
 
                 byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
